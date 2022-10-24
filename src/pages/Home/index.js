@@ -100,7 +100,6 @@ const Home = () => {
   const getListClinic = async () => {
     try {
       const response = await ClinicApi.getAllClinics({ page: 1, page_size: 10 });
-      console.log('response: ', response.data.data);
       const listClinic = response?.data?.data.map(item => {
         return {
           id: item.id,
@@ -116,10 +115,10 @@ const Home = () => {
   }
 
   useEffect(() => {
-    getListDoctor();
-    //maps get list doctorOption
+    window.scrollTo(0, 0);
     getListSpecialty();
     getListClinic();
+    getListDoctor();
   }, []);
 
   return (
@@ -275,6 +274,7 @@ const Home = () => {
         options={specialtyOption ? [...specialtyOption] : []}
         bgcolor="#f5f5f5"
         buttonTitle={[{ title: "XEM THÊM" }]}
+        type='specialty'
       />
 
       <SliderForm
@@ -282,6 +282,7 @@ const Home = () => {
         options={clinicOption ? [...clinicOption] : []}
         bgcolor="#fff"
         buttonTitle={[{ title: "TÌM KIẾM" }]}
+        type='clinic'
       />
 
       <SliderForm
@@ -289,6 +290,7 @@ const Home = () => {
         options={doctorOption ? [...doctorOption] : []}
         bgcolor={'#f5f5f5'}
         buttonTitle={[{ title: "XEM THÊM" }]}
+        type='doctor'
       />
 
       <Stack px={8} py={3}>

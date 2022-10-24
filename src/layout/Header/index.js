@@ -220,7 +220,9 @@ const Header = () => {
                 <Stack direction="row" spacing={1}>
                   <Button
                     size="small"
-                    onClick={() => setLoginModal(true)}
+                    onClick={() => {
+                      navigate("/login");
+                    }}
                     variant="contained"
                   >
                     sign in
@@ -235,14 +237,14 @@ const Header = () => {
                 </Stack>
               )}
             </Stack>
-            <Login
+            {/* <Login
               reset={reset}
               modal={loginModal}
               setModal={setLoginModal}
               setRegisterModal={setRegisterModal}
               setReset={setReset}
-            />
-            <Register modal={registerModal} setModal={setRegisterModal} />
+            /> */}
+            {/* <Register modal={registerModal} setModal={setRegisterModal} /> */}
           </Toolbar>
         </Container>
       </AppBar>

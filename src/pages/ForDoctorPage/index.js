@@ -32,6 +32,16 @@ import DoctorApi from "../../apis/DoctorApi";
 import baseURL from "../../utils";
 import SchedulesApi from "../../apis/SchedulesApi";
 import moment from "moment";
+import vi from "moment/locale/vi";
+
+
+const positionDoctor = {
+  ASSOCIATE_PROFESSOR: 'Phó Giáo sư',
+  NONE: 'Bác sĩ', // bác sĩ
+  MASTER: 'Thạc sĩ', // Thạc sĩ
+  DOCTOR: 'Tiến sĩ', // Tiến sĩ
+  PROFESSOR: 'Giáo sư',
+}
 
 const ForDoctorsPage = () => {
   const now = Date.now();
@@ -51,6 +61,8 @@ const ForDoctorsPage = () => {
   const [address, setAddress] = useState();
   const [reason, setReason] = useState();
 
+  const [daysOption, setDaysOption] = useState([]);
+
   const [loading, setLoading] = useState(false);
 
   const getDoctor = useCallback(async () => {
@@ -62,6 +74,21 @@ const ForDoctorsPage = () => {
     }
   }, [id]);
 
+  // console.log('doctor: ', doctor);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    const days = getDays();
+    // console.log('days: ', days);
+    setSelectDate(days && days.length > 0 ? days[0].value : undefined);
+    setDaysOption(days ? days : []);
+  }, [])
+
+  console.log('day: ', daysOption);
+  console.log('selectDate: ', selectDate);
+
+
+
   useEffect(() => {
     getDoctor();
   }, [getDoctor]);
@@ -71,7 +98,9 @@ const ForDoctorsPage = () => {
     try {
       const response = await SchedulesApi.getSchedules({
         doctorId: id,
-        date: date,
+        date: selectDate,
+        page: 1,
+        page_size: 100
       });
       console.log("res", response.data.data);
       setDoctorSchedules(response.data.data);
@@ -80,16 +109,43 @@ const ForDoctorsPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [date, id]);
+  }, [selectDate, id]);
 
   useEffect(() => {
-    getDoctorSchedules();
+    if (selectDate) {
+      getDoctorSchedules();
+    }
   }, [getDoctorSchedules]);
 
+  const getDays = () => {
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const obj = {};
+      if (i === 0) {
+        const ddMM = moment(new Date()).format('DD/MM');
+        const today = `Hôm nay - ${ddMM}`;
+        obj.label = today;
+      } else {
+        let label = moment(new Date()).add(i, 'days').locale('vi').format('dddd - DD/MM');
+        // Convert chữ cái đầu thành in hoa
+        label = capitalizeFirstLetter(label)
+        obj.label = label;
+      }
+      obj.value = moment(new Date()).add(i, 'days').format('YYYY-MM-DDT00:00:00')
+      days.push(obj)
+    }
+    return days;
+  }
+
+  function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
   const handleChangeDate = (event) => {
-    const isDate = new Date(`2022-${event.target.value}T00:00:00.000Z`);
-    setDate(isDate);
+    // const isDate = new Date(`2022 - ${ event.target.value }T00: 00: 00.000Z`);
+    // setDate(isDate);
     setSelectDate(event.target.value);
+    console.log('onChangeSelect: ', event.target.value);
   };
 
   return (
@@ -110,7 +166,7 @@ const ForDoctorsPage = () => {
           <Link
             underline="none"
             color="#45c3d2"
-            href={`/ForPatientsPage/${doctor?.specialty?.id}`}
+            href={`/ ForPatientsPage / ${doctor?.specialty?.id}`}
             sx={{ fontSize: 14 }}
           >
             {doctor?.specialty?.name}
@@ -123,46 +179,44 @@ const ForDoctorsPage = () => {
             <Avatar
               alt={doctor.id}
               src={image.DepthsDefault}
-              sx={{ width: 100, height: 100, mb: 1 }}
+              sx={{ width: 130, height: 130, mb: 0 }}
             />
           ) : (
             <Avatar
               alt={doctor.id}
               src={`${baseURL}${doctor.avatar}`}
-              sx={{ width: 100, height: 100, mb: 1 }}
+              sx={{ width: 130, height: 130, mb: 0 }}
             />
           )}
           <Box sx={{ width: "50%", pl: 2 }}>
-            <Typography sx={{ fontSize: 18, fontWeight: "bold", pb: 1 }}>
-              {doctor?.doctorInfor?.position} {doctor.lastName}{" "}
+            <Typography sx={{ fontSize: 25, fontWeight: "bold", pb: 1 }}>
+              {doctor?.doctorInfor?.position ? positionDoctor[doctor?.doctorInfor?.position] : 'Bác sĩ'} {doctor.lastName}{" "}
               {doctor.middleName} {doctor.firstName}
             </Typography>
-            <Typography sx={{ fontSize: 13, color: "#555" }}>
+            <Typography sx={{ fontSize: 14, color: "#555" }}>
               {doctor?.doctorInfor?.introduct}
             </Typography>
-            <Typography sx={{ fontSize: 13, color: "#555", pt: 1 }}>
+            <Typography sx={{ fontSize: 14, color: "#555", pt: 1 }}>
               {doctor?.doctorInfor?.note}
             </Typography>
           </Box>
         </Box>
-        <FormControl variant="standard" sx={{ width: 120 }}>
-          <InputLabel id="demo-simple-select-standard-label">Date</InputLabel>
+        <FormControl variant="standard" sx={{ width: 150 }}>
+          <InputLabel id="select-date">Ngày khám</InputLabel>
           <Select
-            labelId="demo-simple-select-standard-label"
-            id="demo-simple-select-standard"
-            value={selectDate}
+            labelId="select-date"
+            id="select-date"
+            value={`${selectDate}`}
             onChange={handleChangeDate}
             label="Date"
             className="select"
             sx={{ color: "#337ab7" }}
           >
-            <MenuItem value={undefined}>none</MenuItem>
-            <MenuItem value="07-11">Thứ 2: 11/07</MenuItem>
-            <MenuItem value="07-12">Thứ 3: 12/07</MenuItem>
-            <MenuItem value="07-13">Thứ 4: 13/07</MenuItem>
-            <MenuItem value="07-14">Thứ 5: 14/07</MenuItem>
-            <MenuItem value="07-15">Thứ 6: 15/07</MenuItem>
-            <MenuItem value="07-16">Thứ 7: 16/07</MenuItem>
+            {daysOption && daysOption?.length > 0 && (
+              daysOption.map((day, index) => (
+                <MenuItem key={index} value={day.value}>{day.label}</MenuItem>
+              )))}
+
           </Select>
         </FormControl>
 
@@ -210,7 +264,8 @@ const ForDoctorsPage = () => {
                     setTimeSchedules(
                       `${moment(schedule?.timeStart).format("LT")} - ${moment(
                         schedule?.timeEnd
-                      ).format("LT")}`
+                      ).format("LT")
+                      }`
                     );
                     setChangeId(schedule.id);
                     setModal(true);
@@ -254,7 +309,7 @@ const ForDoctorsPage = () => {
         <Modal
           sx={{
             overflowY: "scroll",
-            height: "100%",
+            height: "95%",
           }}
           open={modal}
           onClose={() => setModal(false)}
@@ -265,7 +320,7 @@ const ForDoctorsPage = () => {
             alignItems="center"
             sx={{
               position: "absolute",
-              top: "50%",
+              top: "60%",
               left: "50%",
               transform: "translate(-50%, -50%)",
               width: 800,

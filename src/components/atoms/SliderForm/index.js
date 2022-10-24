@@ -1,8 +1,17 @@
 import { Avatar, Button, Grid, Stack, Typography } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import Slider from "react-slick";
+import { useNavigate } from "react-router-dom";
 
-function SliderForm({ bgcolor, options, label, buttonTitle, itemPerRow }) {
+
+const typeSlide = {
+  DOCTOR: 'doctor',
+  SPECIALTY: 'specialty',
+  CLINIC: 'clinic',
+}
+
+function SliderForm({ bgcolor, options, label, buttonTitle, type }) {
+  let navigate = useNavigate();
   const [width, setWidth] = useState(window.innerWidth);
   useEffect(() => {
     //Resize
@@ -22,7 +31,18 @@ function SliderForm({ bgcolor, options, label, buttonTitle, itemPerRow }) {
     slidesToShow: width < 500 ? 1 : 4,
     slidesToScroll: width < 500 ? 1 : 4,
   };
-  console.log('options: ', options);
+
+  const handleClickNameAndAvatar = (id) => {
+    if (type && type === typeSlide.DOCTOR) {
+      // alert(id)
+      navigate(`/ForDoctorsPage/${id}`)
+    } else if (type && type === typeSlide.CLINIC) {
+      alert(type)
+    } else if (type && type === typeSlide.SPECIALTY) {
+      alert(type)
+    }
+  }
+
   return (
     <Stack
       sx={{
@@ -47,10 +67,6 @@ function SliderForm({ bgcolor, options, label, buttonTitle, itemPerRow }) {
               maxWidth: '100px',
               background: '#ebebeb',
               color: '#282e41',
-              // "&:hover": {
-              //   color: "#fff",
-              //   // background: 'yellow',
-              // }
             }}>
             <Typography sx={{
               fontSize: '12px'
@@ -65,9 +81,9 @@ function SliderForm({ bgcolor, options, label, buttonTitle, itemPerRow }) {
               key={option.id}
               xs={width < 500 ? 12 : 3}
               px={1}
-              onDoubleClick={() => {
-                alert("navigation");
-              }}
+            // onDoubleClick={() => {
+            //   alert(`${type}`);
+            // }}
             >
               <Stack
                 direction="column"
@@ -84,10 +100,11 @@ function SliderForm({ bgcolor, options, label, buttonTitle, itemPerRow }) {
                   sx={
                     !!option.work
                       ? { width: 120, height: 120, cursor: "pointer" }
-                      : { height: 128, width: "auto", borderRadius: 0 }
+                      : { height: 128, width: 270, borderRadius: 0, cursor: "pointer" }
                   }
                   src={option?.image}
                   alt=""
+                  onClick={() => handleClickNameAndAvatar(option.id)}
                 />
                 <Typography
                   py={1}
@@ -95,8 +112,9 @@ function SliderForm({ bgcolor, options, label, buttonTitle, itemPerRow }) {
                   sx={
                     !!option.work
                       ? { textAlign: "center", "&:hover": { color: "#45c3d2", cursor: "pointer" } }
-                      : { "&:hover": { color: "#45c3d2" } }
+                      : { cursor: "pointer", "&:hover": { color: "#45c3d2" } }
                   }
+                  onClick={() => handleClickNameAndAvatar(option.id)}
                 >
                   {option.title}
                 </Typography>

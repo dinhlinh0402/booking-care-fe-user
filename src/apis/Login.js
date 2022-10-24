@@ -1,7 +1,7 @@
 import requestClient from "./RequestClient";
 
 const LoginApi = {
-  addNewUser(data) {
+  loginUser(data) {
     const urlParam = "auth/login";
     return requestClient.post(urlParam, data);
   },

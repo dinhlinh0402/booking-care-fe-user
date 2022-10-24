@@ -11,6 +11,9 @@ import ForDoctorsPage from "../pages/ForDoctorPage/index";
 import ForPatientsPage from "../pages/ForPatientsPage/index";
 import Home from "../pages/Home/index";
 import NotFound from "../pages/NotFoundPage/index";
+import LoginUser from "../user/login";
+import RegisterUser from "../user/register";
+import ResetPassword from "../user/ResetPassword";
 import RequireAuth from "./AuthRouter";
 
 const Router = () => {
@@ -29,16 +32,21 @@ const Router = () => {
           />
           <Route path="ClinicDetailPage/:id" element={<ClinicDetailPage />} />
           <Route path="ForDoctorsPage/:id" element={<ForDoctorsPage />} />
-          <Route
+
+          {/* <Route
             path="Admin"
             element={
               <RequireAuth>
                 <Admin />
               </RequireAuth>
             }
-          />
+          /> */}
           <Route path="*" element={<NotFound />} />
         </Route>
+        <Route path="login" element={<LoginUser />} />
+        <Route path="register" element={<RegisterUser />} />
+        <Route path="reset-password" element={<ResetPassword />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );

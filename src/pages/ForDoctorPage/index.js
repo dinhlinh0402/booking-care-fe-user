@@ -18,6 +18,8 @@ import {
   FormControlLabel,
   Radio,
   CircularProgress,
+  InputAdornment,
+  TextareaAutosize,
 } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
@@ -33,7 +35,19 @@ import baseURL from "../../utils";
 import SchedulesApi from "../../apis/SchedulesApi";
 import moment from "moment";
 import vi from "moment/locale/vi";
-
+import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
+import MailOutlinedIcon from '@mui/icons-material/MailOutlined';
+import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
+import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
+import { useForm } from 'react-hook-form';
+import { toast } from 'react-toastify';
+import { useNavigate } from "react-router-dom";
+import BookingApi from '../../apis/BookingApi';
 
 const positionDoctor = {
   ASSOCIATE_PROFESSOR: 'Phó Giáo sư',
@@ -46,24 +60,29 @@ const positionDoctor = {
 const ForDoctorsPage = () => {
   const now = Date.now();
   let { id } = useParams();
-  const [date, setDate] = useState(now);
   const [selectDate, setSelectDate] = useState();
   const [doctor, setDoctors] = useState("");
   const [doctorSchedules, setDoctorSchedules] = useState();
   const [timeSchedules, setTimeSchedules] = useState();
 
-  const [changeId, setChangeId] = useState();
   const [modal, setModal] = useState(false);
-  const [name, setName] = useState();
-  const [gender, setGender] = useState();
-  const [phone, setPhone] = useState();
+  const [typeBooking, setTypeBooking] = useState('FOR_MYSELF');
   const [birthday, setBirthday] = useState();
-  const [address, setAddress] = useState();
-  const [reason, setReason] = useState();
+  const [gender, setGender] = useState('OTHER');
 
   const [daysOption, setDaysOption] = useState([]);
 
   const [loading, setLoading] = useState(false);
+  const [showModalDontLogin, setShowModalDontLogin] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    // trigger, // validate real time
+    reset, // reset form
+  } = useForm();
+  let navigate = useNavigate();
 
   const getDoctor = useCallback(async () => {
     try {
@@ -74,24 +93,21 @@ const ForDoctorsPage = () => {
     }
   }, [id]);
 
-  // console.log('doctor: ', doctor);
 
   useEffect(() => {
     window.scrollTo(0, 0);
     const days = getDays();
-    // console.log('days: ', days);
     setSelectDate(days && days.length > 0 ? days[0].value : undefined);
     setDaysOption(days ? days : []);
   }, [])
 
-  console.log('day: ', daysOption);
-  console.log('selectDate: ', selectDate);
-
-
-
   useEffect(() => {
     getDoctor();
   }, [getDoctor]);
+
+  useEffect(() => {
+    reset()
+  }, [typeBooking])
 
   const getDoctorSchedules = useCallback(async () => {
     setLoading(true);
@@ -102,7 +118,6 @@ const ForDoctorsPage = () => {
         page: 1,
         page_size: 100
       });
-      console.log("res", response.data.data);
       setDoctorSchedules(response.data.data);
     } catch (error) {
       console.error(error.response);
@@ -145,8 +160,42 @@ const ForDoctorsPage = () => {
     // const isDate = new Date(`2022 - ${ event.target.value }T00: 00: 00.000Z`);
     // setDate(isDate);
     setSelectDate(event.target.value);
-    console.log('onChangeSelect: ', event.target.value);
   };
+
+  const onSubmit = async (data) => {
+    try {
+      const dataRes = await BookingApi.createBooking({
+        ...data,
+        type: typeBooking,
+        birthday: moment(moment(data.birthday, 'DD/MM/YYYY')).format('YYYY-MM-DDT00:00:00'),
+        doctorId: doctor.id,
+        scheduleId: timeSchedules.id || undefined,
+        date: selectDate,
+        bookingDate: moment(new Date()).format('YYYY-MM-DDT00:00:00')
+      })
+      if (dataRes && dataRes.status === 200) {
+        reset();
+        setModal(false);
+        setTypeBooking('FOR_MYSELF')
+        toast.success('Đăng ký lịch khám thành công, hãy vào hồ sơ của bạn để xác nhận');
+      }
+    } catch (error) {
+      console.log('error: ', error);
+      if (error?.response?.data?.error === 'MAXIMUN_COUNT') {
+        toast.error('Số khách hàng đặt đã đạt tối đa');
+        return;
+      }
+      if (error?.response?.data?.error === 'SCHEDULE_NOT_EXIST') {
+        toast.error('Lịch khám đã qua hoặc không tồn tại');
+        return;
+      }
+      if (error?.response?.data?.error === 'YOU_HAVE_BOOKED') {
+        toast.error('Bạn đã đặt lịch khám này');
+        return;
+      }
+      toast.error('Đăng ký khám không thành công');
+    }
+  }
 
   return (
     <Box>
@@ -261,14 +310,19 @@ const ForDoctorsPage = () => {
                     },
                   }}
                   onClick={() => {
-                    setTimeSchedules(
-                      `${moment(schedule?.timeStart).format("LT")} - ${moment(
-                        schedule?.timeEnd
-                      ).format("LT")
-                      }`
-                    );
-                    setChangeId(schedule.id);
-                    setModal(true);
+                    if (localStorage.getItem("accessToken")) {
+                      setTimeSchedules(
+                        // `${moment(schedule?.timeStart).format("LT")} - ${moment(
+                        //   schedule?.timeEnd
+                        // ).format("LT")
+                        // }`
+                        schedule
+                      );
+                      // setChangeId(schedule.id);
+                      setModal(true);
+                    } else (
+                      setShowModalDontLogin(true)
+                    )
                   }}
                 >
                   <Typography sx={{ fontSize: 14, fontWeight: "500" }}>
@@ -308,137 +362,305 @@ const ForDoctorsPage = () => {
         </Box>
         <Modal
           sx={{
-            overflowY: "scroll",
-            height: "95%",
+            overflowY: "auto",
+            height: "100%",
           }}
           open={modal}
           onClose={() => setModal(false)}
         >
-          <Stack
-            p={5}
-            justifyContent="center"
-            alignItems="center"
-            sx={{
-              position: "absolute",
-              top: "60%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: 800,
-              bgcolor: "white",
-              border: "2px solid #333",
-              boxShadow: 24,
-              borderRadius: 2,
-              p: 4,
-            }}
-            spacing={5}
-          >
-            <Stack width="80%" py={2} spacing={2}>
-              <Stack direction="row" spacing={2}>
-                {!doctor.avatar ? (
-                  <Avatar
-                    alt={doctor.id}
-                    src={image.DepthsDefault}
-                    sx={{ width: 100, height: 100, mb: 1 }}
-                  />
-                ) : (
-                  <Avatar
-                    alt={doctor.id}
-                    src={`${baseURL}${doctor.avatar}`}
-                    sx={{ width: 100, height: 100, mb: 1 }}
-                  />
-                )}
-                <Stack spacing={0.2}>
-                  <Typography>ĐẶT LỊCH KHÁM</Typography>
-                  <Typography>
-                    {doctor?.doctorInfor?.position}: {doctor.firstName}{" "}
-                    {doctor.middleName} {doctor.lastName}
-                  </Typography>
-                  <Typography>Ngày khám: {selectDate}</Typography>
-                  <Typography>Thời gian: {timeSchedules}</Typography>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <Stack
+              p={5}
+              justifyContent="center"
+              alignItems="center"
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: 800,
+                bgcolor: "white",
+                border: "2px solid #333",
+                boxShadow: 24,
+                borderRadius: 2,
+                p: 3,
+                paddingLeft: '0px',
+              }}
+              spacing={5}
+            >
+              <Stack width="80%" py={2} spacing={2}>
+                <Stack direction="row" spacing={2}>
+                  {!doctor.avatar ? (
+                    <Avatar
+                      alt={doctor.id}
+                      src={image.DepthsDefault}
+                      sx={{ width: 100, height: 100, mb: 1 }}
+                    />
+                  ) : (
+                    <Avatar
+                      alt={doctor.id}
+                      src={`${baseURL}${doctor.avatar}`}
+                      sx={{ width: 100, height: 100, mb: 1 }}
+                    />
+                  )}
+                  <Stack spacing={0.2}>
+                    <Typography style={{ fontSize: '15px' }}>ĐẶT LỊCH KHÁM</Typography>
+                    <Typography style={{ fontSize: '15px' }}>
+                      {/* {doctor?.doctorInfor?.position}: {doctor.firstName}{" "}
+                    {doctor.middleName} {doctor.lastName} */}
+                      {`${doctor?.doctorInfor?.position ? positionDoctor[doctor?.doctorInfor?.position] : 'Bác sĩ'}, ${doctor.firstName} ${doctor.middleName} ${doctor.lastName}`}
+                    </Typography>
+                    <Typography style={{ fontSize: '15px' }}>Ngày khám: {capitalizeFirstLetter(`${moment(selectDate).format('dddd - DD/MM/YYYY')}`)}</Typography>
+                    <Typography style={{ fontSize: '15px' }}>Thời gian: {`${moment(timeSchedules?.timeStart).format("LT")} - ${moment(timeSchedules?.timeEnd).format("LT")}`}</Typography>
+                  </Stack>
                 </Stack>
-              </Stack>
-              <TextField
-                flex={1}
-                width="100%"
-                label="Name"
-                variant="outlined"
-                onChange={(e) => setName(e.target.value)}
-              />
+                <RadioGroup
+                  sx={{
+                    flexDirection: "row",
+                  }}
+                  defaultValue={typeBooking}
+                  // {...register('type', {
+                  //   required: true,
+                  // })}
+                  onChange={(e) => setTypeBooking(e.target.value)}
+                >
+                  <FormControlLabel
+                    value="FOR_MYSELF"
+                    control={<Radio size='small' />}
+                    label="Đặt cho mình"
+                  />
+                  <FormControlLabel
+                    value="FOR_RELATIVES"
+                    control={<Radio size='small' />}
+                    label="Đặt cho người thân"
+                  />
+                </RadioGroup>
+                {typeBooking === 'FOR_RELATIVES' && (
+                  <>
+                    <TextField
+                      flex={1}
+                      width="100%"
+                      label="Họ tên bệnh nhân"
+                      placeholder="Họ tên bệnh nhân"
+                      variant="outlined"
+                      // onChange={(e) => setName(e.target.value)}
+                      size="small"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start"><PersonOutlineOutlinedIcon /></InputAdornment>
+                        ),
+                      }}
+                      {...register('name', {
+                        required: 'Họ tên bệnh nhân không được trống',
+                      })}
+                      error={!!errors?.name}
+                      helperText={errors?.name ? errors.name.message : null}
+                    />
+                    <TextField
+                      flex={1}
+                      label="Số điện thoại"
+                      variant="outlined"
+                      placeholder='Số điện thoại'
+                      // onChange={(e) => setPhone(e.target.value)}
+                      size="small"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start"><PhoneIphoneIcon /></InputAdornment>
+                        ),
+                      }}
+                      {...register('phone', {
+                        required: 'Số điện thoại không được trống',
+                      })}
+                      error={!!errors?.phone}
+                      helperText={errors?.phone ? errors.phone.message : null}
+                    />
+                    <TextField
+                      flex={1}
+                      label="Email"
+                      variant="outlined"
+                      placeholder='Email'
+                      // onChange={(e) => setPhone(e.target.value)}
+                      size="small"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start"><MailOutlinedIcon /></InputAdornment>
+                        ),
+                      }}
+                      {...register('email', {
+                        required: 'Email không được trống',
+                        pattern: {
+                          value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g,
+                          message: 'Email không hợp lệ'
+                        }
+                      })}
+                      error={!!errors?.email}
+                      helperText={errors?.email ? errors.email.message : null}
+                    />
 
-              <RadioGroup
-                sx={{
-                  flexDirection: "row",
-                }}
-                onChange={(e) => setGender(e.target.value)}
-              >
-                <FormControlLabel
-                  value="female"
-                  control={<Radio />}
-                  label="Female"
-                />
-                <FormControlLabel
-                  value="male"
-                  control={<Radio />}
-                  label="Male"
-                />
-              </RadioGroup>
+                    <FormControl fullWidth>
+                      <InputLabel id="demo-simple-select-label">Giới tính</InputLabel>
+                      <Select
+                        // labelId="demo-simple-select-label"
+                        // id="demo-simple-select"
+                        value={gender}
+                        label="Giới tính"
+                        {...register('gender', {
+                          required: 'Giới tính không được trống',
+                        })}
+                        onChange={(e) => {
+                          setGender(e.target.value)
+                        }}
+                      >
+                        <MenuItem value={'OTHER'}>Khác</MenuItem>
+                        <MenuItem value={'MALE'}>Nam</MenuItem>
+                        <MenuItem value={'FEMALE'}>Nữ</MenuItem>
+                      </Select>
+                    </FormControl>
 
-              <TextField
-                flex={1}
-                label="Phone"
-                variant="outlined"
-                onChange={(e) => setPhone(e.target.value)}
-              />
-              <TextField
-                flex={1}
-                label="Birthday"
-                variant="outlined"
-                onChange={(e) => setBirthday(e.target.value)}
-              />
-              <TextField
-                flex={1}
-                label="Address"
-                variant="outlined"
-                onChange={(e) => setAddress(e.target.value)}
-              />
-              <TextField
-                flex={1}
-                label="Reason"
-                variant="outlined"
-                onChange={(e) => setReason(e.target.value)}
-              />
-              <Stack p={3} bgcolor="#f6f6f6" height={80} direction="row">
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                      <DesktopDatePicker
+                        label="Ngày sinh"
+                        inputFormat="dd/MM/yyyy"
+                        value={birthday}
+                        disableFuture={true}
+                        renderInput={(params) => (
+                          // <TextField
+                          //   {...params}
+                          //   inputProps={
+                          //     {
+                          //       ...params.inputProps,
+                          //       placeholder: "dd/mm/aaaa"
+                          //     }
+                          //   }
+                          // />
+                          <TextField {...params} required />
+                        )}
+                        {...register('birthday', {
+                          required: 'Ngày sinh không được trống',
+                        })}
+                        onChange={(newValue) => {
+                          setBirthday(newValue);
+                        }}
+                        error={!!errors?.birthday}
+                        helperText={errors?.birthday ? errors.birthday.message : null}
+                      />
+                    </LocalizationProvider>
+                    <TextField
+                      flex={1}
+                      label="Địa chỉ"
+                      placeholder="Địa chỉ"
+                      variant="outlined"
+                      // onChange={(e) => setAddress(e.target.value)}
+                      size="small"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start"><LocationOnOutlinedIcon /></InputAdornment>
+                        ),
+                      }}
+                      {...register('address', {
+                        required: 'Địa chỉ không được trống',
+
+                      })}
+                      error={!!errors?.address}
+                      helperText={errors?.address ? errors.address.message : null}
+                    />
+                  </>
+                )}
+                <TextareaAutosize
+                  minRows={3}
+                  placeholder="Lý do khám"
+                  required
+                  style={{ width: '100%', maxWidth: '100%' }}
+                  {...register('reason', {
+                    required: 'Lý do không được để trống'
+                  })}
+                  error={!!errors?.reason}
+                  helperText={errors?.reason ? errors.reason.message : null}
+                />
+
+                {/* <Stack p={3} bgcolor="#f6f6f6" height={80} direction="row">
                 <Typography flex={2}>Gia Kham:</Typography>
                 <Stack flex={6}></Stack>
                 <Typography flex={1}>{doctor?.doctorInfor?.price}đ</Typography>
-              </Stack>
-              <Button
-                variant="contained"
-                onClick={() => {
-                  if (name && gender && phone && birthday && address) {
-                    SchedulesApi.deleteSchedules(changeId);
-                    setModal(false);
-                    setTimeout(() => {
-                      getDoctorSchedules();
-                    }, 500);
-                  } else {
-                    alert("Ban Chua Nhap Du Thong Tin");
+              </Stack> */}
+                <Button
+                  variant="contained"
+                  type='submit'
+                  onClick={() => {
+                    // if (name && gender && phone && birthday && address) {
+                    //   SchedulesApi.deleteSchedules(changeId);
+                    //   setModal(false);
+                    //   setTimeout(() => {
+                    //     getDoctorSchedules();
+                    //   }, 500);
+                    // } else {
+                    //   alert("Ban Chua Nhap Du Thong Tin");
+                    // }
                   }
-                }}
-              >
-                Xác nhận đặt lịch
-              </Button>
+                  }
+                >
+                  Xác nhận đặt lịch
+                </Button>
+              </Stack>
             </Stack>
-          </Stack>
+          </form>
+
         </Modal>
       </Container>
+
+      <Modal
+        open={showModalDontLogin}
+        onClose={() => {
+          setShowModalDontLogin(false)
+        }}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -100%)',
+          width: 400,
+          bgcolor: 'background.paper',
+          border: '2px solid #000',
+          boxShadow: 24,
+          p: 4,
+          textAlign: 'center'
+        }}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Bạn chưa đăng nhập
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            Hãy đăng nhập để đăng ký lịch khám bệnh miễn phí
+          </Typography>
+          <Stack direction='row' spacing={2} alignItems="center" justifyContent="center" mt={3}>
+            <Button
+              color='primary'
+              variant="contained"
+              onClick={() => {
+                navigate('/login')
+              }}
+            >
+              Đăng nhập
+            </Button>
+            <Button
+              color='error'
+              variant="contained"
+              onClick={() => setShowModalDontLogin(false)}
+            >
+              Huỷ
+            </Button>
+          </Stack>
+        </Box>
+      </Modal>
 
       <Container sx={{ mt: 2, borderTop: 1, borderColor: "gray" }}>
         <Typography sx={{ fontSize: 14, lineHeight: 2, py: 2 }}>
           {doctor?.doctorInfor?.description}
         </Typography>
       </Container>
-    </Box>
+    </Box >
   );
 };
 

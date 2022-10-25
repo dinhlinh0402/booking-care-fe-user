@@ -47,7 +47,7 @@ const LoginUser = () => {
             label='Tài khoản'
             placeholder='Email'
             fullWidth
-            required
+            // required
             autoFocus
             {...register('email', {
               required: 'Email là bắt buộc',
@@ -67,9 +67,12 @@ const LoginUser = () => {
             placeholder='Mật khẩu'
             type='password'
             fullWidth
-            required {...register('password', {
+            // required
+            {...register('password', {
               required: 'Mật khẩu là bắt buộc',
             })}
+            error={!!errors?.password}
+            helperText={errors?.password ? errors.password.message : null}
           />
           <Button
             type='submit'

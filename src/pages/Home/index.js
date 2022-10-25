@@ -67,7 +67,7 @@ const Home = () => {
     try {
       const response = await DoctorApi.getAll({ page: 1, page_size: 10 });
       const listDoctor = response?.data?.data?.map(item => {
-        const title = `${item?.doctorInfor?.position ? positionDoctor[item?.doctorInfor?.position] : 'Bác sĩ'}, ${item.lastName} ${item.middleName} ${item.firstName}`;
+        const title = `${item?.doctorInfor?.position ? positionDoctor[item?.doctorInfor?.position] : 'Bác sĩ'}, ${item.firstName} ${item.middleName} ${item.lastName}`;
         return {
           id: item.id,
           title: title,

@@ -54,7 +54,7 @@ const RegisterUser = () => {
             label='Tài khoản'
             placeholder='Email'
             fullWidth
-            required
+            // required
             autoFocus
             {...register('email', {
               required: 'Email là bắt buộc',
@@ -96,7 +96,7 @@ const RegisterUser = () => {
             placeholder='Mật khẩu'
             type='password'
             fullWidth
-            required
+            // required
             {...register('password', {
               required: 'Mật khẩu là bắt buộc',
               minLength: {
@@ -112,7 +112,7 @@ const RegisterUser = () => {
             placeholder='Mật khẩu'
             type='password'
             fullWidth
-            required
+            // required
             {...register('confirmPassword', {
               required: 'Mật khẩu là bắt buộc',
               minLength: {

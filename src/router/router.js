@@ -11,7 +11,10 @@ import ForDoctorsPage from "../pages/ForDoctorPage/index";
 import ForPatientsPage from "../pages/ForPatientsPage/index";
 import Home from "../pages/Home/index";
 import NotFound from "../pages/NotFoundPage/index";
+import Bookings from "../user/Bookings";
+import ChangePassword from "../user/ChangePassword";
 import LoginUser from "../user/login";
+import MyAccount from "../user/MyAccount";
 import RegisterUser from "../user/register";
 import ResetPassword from "../user/ResetPassword";
 import RequireAuth from "./AuthRouter";
@@ -41,6 +44,38 @@ const Router = () => {
               </RequireAuth>
             }
           /> */}
+          <Route
+            path="user/my-account"
+            element={
+              <RequireAuth>
+                <MyAccount />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="user/my-account"
+            element={
+              <RequireAuth>
+                <MyAccount />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="user/change-password"
+            element={
+              <RequireAuth>
+                <ChangePassword />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="user/bookings"
+            element={
+              <RequireAuth>
+                <Bookings />
+              </RequireAuth>
+            }
+          />
           <Route path="*" element={<NotFound />} />
         </Route>
         <Route path="login" element={<LoginUser />} />

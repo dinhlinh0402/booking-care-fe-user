@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import AppBar from "@mui/material/AppBar";
 import {
+  Avatar,
   Box,
   Button,
   Container,
   Divider,
   IconButton,
   Link,
+  Menu,
+  MenuItem,
   Stack,
   SwipeableDrawer,
   Toolbar,
@@ -21,6 +24,10 @@ import LogoutIcons from "@mui/icons-material/Logout";
 import Login from "../Login";
 import Register from "../Register";
 import { useNavigate } from "react-router-dom";
+import AuthApi from '../../apis/Auth';
+import baseURL from "../../utils";
+import { deepOrange } from '@mui/material/colors';
+import Fade from '@mui/material/Fade';
 
 const pages = [
   {
@@ -65,14 +72,39 @@ const Header = () => {
   const [token, setToken] = useState();
   const [name, setName] = useState("");
   const [reset, setReset] = useState(0);
+  const [user, setUser] = useState({});
   let navigate = useNavigate();
-
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
   useEffect(() => {
+    getAuth()
     const token = localStorage.getItem("accessToken");
-    const userName = localStorage.getItem("userName");
+    // const userName = localStorage.getItem("userName");
     setToken(token);
-    setName(userName);
+    // setName(userName);
   }, [reset]);
+
+  const getAuth = async () => {
+    try {
+      const dataRes = await AuthApi.getAuth();
+      if (dataRes?.data) setUser(dataRes?.data)
+      else {
+        localStorage.clear();
+      }
+
+      console.log('data: ', dataRes.data);
+    } catch (error) {
+      console.log('error: ', error);
+    }
+  }
+
+
 
   return (
     <>
@@ -205,8 +237,19 @@ const Header = () => {
                 Hỗ trợ
               </Link>
               {!!token ? (
-                <Stack alignItems="center" direction="row" spacing={1}>
-                  <Typography>Hi: {name}</Typography>
+                <>
+                  <Stack
+                    alignItems="center"
+                    direction="row"
+                    spacing={1}
+                    style={{ cursor: "pointer" }}
+                    id="fade-button"
+                    aria-controls={open ? 'fade-menu' : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={open ? 'true' : undefined}
+                    onClick={handleClick}
+                  >
+                    {/* <Typography>Hi: {name}</Typography>
                   <LogoutIcons
                     onClick={() => {
                       localStorage.clear();
@@ -214,8 +257,63 @@ const Header = () => {
                       setReset(reset + 1);
                       navigate("/");
                     }}
-                  />
-                </Stack>
+                  /> */}
+
+                    {user && user.avatar ? (
+                      <Avatar sx={{ width: 30, height: 30 }} alt="" src={`${baseURL}${user.avatar}`} />
+                    ) : (
+                      <Avatar sx={{ width: 30, height: 30, bgcolor: deepOrange[500] }}>{user.lastName}</Avatar>
+                    )}
+
+                    <Typography style={{ fontSize: '14px' }}>
+                      {`${user.firstName ? user.firstName : ''} ${user.middleName ? user.middleName : ''} ${user.lastName ? user.lastName : ''}`}
+                    </Typography>
+
+                  </Stack>
+                  <Menu
+                    id="fade-menu"
+                    MenuListProps={{
+                      'aria-labelledby': 'fade-button',
+                    }}
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
+                    TransitionComponent={Fade}
+                    style={{ width: '250px' }}
+                  >
+                    <MenuItem
+                      onClick={() => {
+                        navigate('user/my-account');
+                        handleClose();
+                      }}
+                    >
+                      Tài khoản của tôi</MenuItem>
+                    <MenuItem
+                      onClick={() => {
+                        navigate('user/change-password');
+                        handleClose();
+                      }}
+                    >
+                      Đổi mật khẩu</MenuItem>
+                    <MenuItem
+                      onClick={() => {
+                        navigate('user/bookings');
+                        handleClose();
+                      }}
+                    >
+                      Lịch sử đặt lịch</MenuItem>
+                    <MenuItem
+                      onClick={() => {
+                        localStorage.clear();
+                        setToken();
+                        setReset(reset + 1);
+                        navigate("/");
+                      }}
+                    >
+                      Đăng xuất
+                    </MenuItem>
+                  </Menu>
+                </>
               ) : (
                 <Stack direction="row" spacing={1}>
                   <Button

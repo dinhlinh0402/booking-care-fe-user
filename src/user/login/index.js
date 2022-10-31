@@ -27,7 +27,7 @@ const LoginUser = () => {
     try {
       const dataRes = await LoginApi.loginUser(data);
       localStorage.setItem("accessToken", dataRes?.data?.token?.accessToken);
-      localStorage.setItem("userName", dataRes?.data?.user?.lastName);
+      localStorage.setItem("user", JSON.stringify(dataRes?.data?.user));
       navigate("/");
     } catch (error) {
       console.log(error);

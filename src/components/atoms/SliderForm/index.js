@@ -13,6 +13,7 @@ const typeSlide = {
 function SliderForm({ bgcolor, options, label, buttonTitle, type }) {
   let navigate = useNavigate();
   const [width, setWidth] = useState(window.innerWidth);
+
   useEffect(() => {
     //Resize
     const handleResize = () => {
@@ -67,7 +68,9 @@ function SliderForm({ bgcolor, options, label, buttonTitle, type }) {
               maxWidth: '100px',
               background: '#ebebeb',
               color: '#282e41',
-            }}>
+            }}
+            onClick={() => navigate(item.to)}
+          >
             <Typography sx={{
               fontSize: '12px'
             }}>{item.title}</Typography>

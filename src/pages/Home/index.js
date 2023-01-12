@@ -65,7 +65,7 @@ const Home = () => {
   //     work: "Sức khỏe tâm thần",
   const getListDoctor = async () => {
     try {
-      const response = await DoctorApi.getAll({ page: 1, page_size: 10 });
+      const response = await DoctorApi.getAll({ page: 1, page_size: 10, status: true });
       const listDoctor = response?.data?.data?.map(item => {
         const title = `${item?.doctorInfor?.position ? positionDoctor[item?.doctorInfor?.position] : 'Bác sĩ'}, ${item.firstName} ${item.middleName} ${item.lastName}`;
         return {
@@ -273,7 +273,7 @@ const Home = () => {
         label='Chuyên khoa phổ biến'
         options={specialtyOption ? [...specialtyOption] : []}
         bgcolor="#f5f5f5"
-        buttonTitle={[{ title: "XEM THÊM" }]}
+        buttonTitle={[{ title: "XEM THÊM", to: '/DepthsListPage' }]}
         type='specialty'
       />
 
@@ -281,7 +281,7 @@ const Home = () => {
         label='Cơ sở y tế nổi bật'
         options={clinicOption ? [...clinicOption] : []}
         bgcolor="#fff"
-        buttonTitle={[{ title: "TÌM KIẾM" }]}
+        buttonTitle={[{ title: "TÌM KIẾM", to: '/FacilitiesPage' }]}
         type='clinic'
       />
 
@@ -289,7 +289,7 @@ const Home = () => {
         label="Bác sĩ nổi bật tuần qua"
         options={doctorOption ? [...doctorOption] : []}
         bgcolor={'#f5f5f5'}
-        buttonTitle={[{ title: "XEM THÊM" }]}
+        buttonTitle={[{ title: "XEM THÊM", to: '/DoctorsListPage' }]}
         type='doctor'
       />
 

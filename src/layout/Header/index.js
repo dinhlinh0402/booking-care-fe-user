@@ -322,15 +322,26 @@ const Header = () => {
                       navigate("/login");
                     }}
                     variant="contained"
+                    sx={{
+                      // width: '100px',
+                      padding: '5px 5px',
+                    }}
                   >
-                    sign in
+                    Đăng nhập
                   </Button>
                   <Button
                     size="small"
-                    onClick={() => setRegisterModal(true)}
+                    // onClick={() => setRegisterModal(true)}
                     variant="contained"
+                    onClick={() => {
+                      navigate("/register");
+                    }}
+                    sx={{
+                      // width: '100px',
+                      padding: '0px 5px',
+                    }}
                   >
-                    sign up
+                    Đăng ký
                   </Button>
                 </Stack>
               )}

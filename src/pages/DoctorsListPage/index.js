@@ -7,7 +7,7 @@ import {
   Link,
   CircularProgress,
 } from "@mui/material";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import DoctorApi from "../../apis/DoctorApi";
 import * as image from "../../assets/index";
 import { useNavigate } from "react-router-dom";
@@ -17,11 +17,20 @@ const DoctorsListPage = () => {
   let navigate = useNavigate();
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  const [search, setSearchInput] = useState('');
+  const typingSearch = useRef(null);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [])
   const callGetAllDoctors = async () => {
     setLoading(true);
     try {
-      const data = await DoctorApi.getAll();
+      const data = await DoctorApi.getAll({
+        page: 1,
+        take: 100,
+        status: true,
+        name: search || undefined,
+      });
       setDoctors(data.data?.data);
     } catch (error) {
       console.log(error);
@@ -29,12 +38,23 @@ const DoctorsListPage = () => {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     callGetAllDoctors();
-  }, []);
+  }, [search]);
 
   const handleToDetail = (doctor) => {
     navigate(`/ForDoctorsPage/${doctor.id}`);
+  };
+
+  const handleSearch = (value) => {
+    if (typingSearch.current) {
+      clearTimeout(typingSearch.current);
+    }
+
+    typingSearch.current = setTimeout(() => {
+      setSearchInput(value);
+    }, 500);
   };
 
   return (
@@ -51,6 +71,7 @@ const DoctorsListPage = () => {
             bgcolor: "white",
           }}
           placeholder="Tìm kiếm bác sĩ"
+          onChange={(e) => handleSearch(e.target.value)}
         />
       </Box>
       <Box bgcolor="#FFFFFF" sx={{ mt: 1, width: "100%", minHeight: "100px" }}>

@@ -6,7 +6,7 @@ import {
   Link,
   CircularProgress,
 } from "@mui/material";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 import SpecialtyApi from "../../apis/SpecialtyApi";
@@ -19,10 +19,17 @@ const DepthsListPage = () => {
   const [specialties, setSpecialties] = useState();
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [])
+
   const getSpecialty = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await SpecialtyApi.getAll();
+      const response = await SpecialtyApi.getAll({
+        page: 1,
+        take: 100,
+      });
       console.log("response", response);
       setSpecialties(response.data.data);
     } catch (error) {
@@ -90,6 +97,9 @@ const DepthsListPage = () => {
                     alt={depth.name}
                     width={100}
                     height={50}
+                    style={{
+                      cursor: 'pointer'
+                    }}
                   />
                 ) : (
                   <img
@@ -97,6 +107,9 @@ const DepthsListPage = () => {
                     alt={depth.name}
                     width={100}
                     height={50}
+                    style={{
+                      cursor: 'pointer'
+                    }}
                   />
                 )}
               </Link>
@@ -109,6 +122,9 @@ const DepthsListPage = () => {
                   display: "flex",
                   alignSelf: "flex-start",
                   mx: 1.5,
+                }}
+                style={{
+                  cursor: 'pointer'
                 }}
               >
                 <ListItemText>{depth.name}</ListItemText>

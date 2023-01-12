@@ -26,6 +26,11 @@ const LoginUser = () => {
     // reset()
     try {
       const dataRes = await LoginApi.loginUser(data);
+      if (dataRes?.data?.user?.role !== 'USER') {
+        toast.error('Đăng nhập không thành công!');
+        return;
+      }
+      toast.success('Đăng nhập thành công');
       localStorage.setItem("accessToken", dataRes?.data?.token?.accessToken);
       localStorage.setItem("user", JSON.stringify(dataRes?.data?.user));
       navigate("/");

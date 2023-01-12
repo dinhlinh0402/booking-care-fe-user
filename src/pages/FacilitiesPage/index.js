@@ -7,7 +7,7 @@ import {
   Link,
   CircularProgress,
 } from "@mui/material";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ClinicApi from "../../apis/ClinicApi";
 import * as image from "../../assets/index";
 import baseURL from "../../utils";
@@ -17,11 +17,22 @@ const FacilitiesPage = () => {
   let navigate = useNavigate();
   const [clinics, setClinic] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [search, setSearchInput] = useState('');
+  const typingSearch = useRef(null);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [])
 
   const callGetAllClinics = async () => {
     setLoading(true);
     try {
-      const data = await ClinicApi.getAllClinics();
+      const data = await ClinicApi.getAllClinics({
+        page: 1,
+        take: 100,
+        name: search || undefined,
+        active: ['true'],
+      });
       console.log("data", data);
       setClinic(data.data?.data);
     } catch (error) {
@@ -32,10 +43,20 @@ const FacilitiesPage = () => {
   };
   useEffect(() => {
     callGetAllClinics();
-  }, []);
+  }, [search]);
 
   const handleToDetail = (clinic) => {
     navigate(`/ClinicDetailPage/${clinic.id}`);
+  };
+
+  const handleSearch = (value) => {
+    if (typingSearch.current) {
+      clearTimeout(typingSearch.current);
+    }
+
+    typingSearch.current = setTimeout(() => {
+      setSearchInput(value);
+    }, 500);
   };
 
   return (
@@ -52,6 +73,7 @@ const FacilitiesPage = () => {
             bgcolor: "white",
           }}
           placeholder="Tìm kiếm bệnh viện, phòng khám"
+          onChange={(e) => handleSearch(e.target.value)}
         />
       </Box>
       <Box bgcolor="#FFFFFF" sx={{ mt: 1, width: "100%", minHeight: "100px" }}>
@@ -102,6 +124,9 @@ const FacilitiesPage = () => {
                     alt={clinic.name}
                     width={100}
                     height={50}
+                    style={{
+                      cursor: 'pointer'
+                    }}
                   />
                 ) : (
                   <img
@@ -109,6 +134,9 @@ const FacilitiesPage = () => {
                     alt={clinic.name}
                     width={100}
                     height={50}
+                    style={{
+                      cursor: 'pointer'
+                    }}
                   />
                 )}
               </Link>
@@ -120,6 +148,9 @@ const FacilitiesPage = () => {
                   display: "flex",
                   alignSelf: "flex-start",
                   mx: 1.5,
+                }}
+                style={{
+                  cursor: 'pointer'
                 }}
               >
                 <ListItemText>{clinic.name}</ListItemText>

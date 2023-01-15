@@ -28,6 +28,8 @@ import AuthApi from '../../apis/Auth';
 import baseURL from "../../utils";
 import { deepOrange } from '@mui/material/colors';
 import Fade from '@mui/material/Fade';
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const pages = [
   {
@@ -287,21 +289,25 @@ const Header = () => {
                         handleClose();
                       }}
                     >
-                      Tài khoản của tôi</MenuItem>
-                    <MenuItem
+                      <Stack direction="row" spacing={1}>
+                        <span ><PersonOutlineIcon /></span>
+                        <span>Tài khoản của tôi</span>
+                      </Stack>
+                    </MenuItem>
+                    {/* <MenuItem
                       onClick={() => {
                         navigate('user/change-password');
                         handleClose();
                       }}
                     >
-                      Đổi mật khẩu</MenuItem>
-                    <MenuItem
+                      Đổi mật khẩu</MenuItem> */}
+                    {/* <MenuItem
                       onClick={() => {
                         navigate('user/bookings');
                         handleClose();
                       }}
                     >
-                      Lịch sử đặt lịch</MenuItem>
+                      Lịch sử đặt lịch</MenuItem> */}
                     <MenuItem
                       onClick={() => {
                         localStorage.clear();
@@ -310,7 +316,10 @@ const Header = () => {
                         navigate("/");
                       }}
                     >
-                      Đăng xuất
+                      <Stack direction="row" spacing={1}>
+                        <span><LogoutIcon /></span>
+                        <span>Đăng xuất</span>
+                      </Stack>
                     </MenuItem>
                   </Menu>
                 </>

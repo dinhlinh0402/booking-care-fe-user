@@ -52,14 +52,7 @@ const Router = () => {
               </RequireAuth>
             }
           />
-          <Route
-            path="user/my-account"
-            element={
-              <RequireAuth>
-                <MyAccount />
-              </RequireAuth>
-            }
-          />
+
           <Route
             path="user/change-password"
             element={

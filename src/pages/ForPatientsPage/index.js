@@ -33,6 +33,10 @@ export default function ForPatientsPage() {
   const [detailSpecs, setDetailSpecs] = useState();
   const [doctors, setDoctors] = useState();
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [])
+
   const getSpecialty = useCallback(async () => {
     try {
       const response = await SpecialtyApi.getOne(id);
@@ -182,4 +186,3 @@ export default function ForPatientsPage() {
   </BookingWrapper>
   )
 }
-

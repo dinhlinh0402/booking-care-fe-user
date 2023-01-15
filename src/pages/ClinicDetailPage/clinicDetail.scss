@@ -1,0 +1,26 @@
+.spin {
+  margin       : 20px 0;
+  margin-bottom: 20px;
+  padding      : 30px 50px;
+  text-align   : center;
+}
+
+.container {
+  padding: 0 300px;
+
+  .header_clinic {
+    padding: 0 20px;
+    height: 100px;
+    margin-bottom: 20px;
+  }
+
+  .name_address_clinic {
+    .name {
+      font-size: 25px;
+      font-weight: 500;
+    }
+    .address {
+      height: 30px;
+    }
+  }
+}

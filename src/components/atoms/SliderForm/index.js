@@ -38,9 +38,9 @@ function SliderForm({ bgcolor, options, label, buttonTitle, type }) {
       // alert(id)
       navigate(`/ForDoctorsPage/${id}`)
     } else if (type && type === typeSlide.CLINIC) {
-      alert(type)
+      navigate(`/ClinicDetailPage/${id}`)
     } else if (type && type === typeSlide.SPECIALTY) {
-      alert(type)
+      navigate(`/ForPatientsPage/${id}`)
     }
   }
 

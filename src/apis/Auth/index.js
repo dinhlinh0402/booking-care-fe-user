@@ -6,6 +6,11 @@ const AuthApi = {
 
     return requestClient.get(urlParam);
   },
+
+  changePassword(data) {
+    const urlParam = 'auth/change-password';
+    return requestClient.post(urlParam, data);
+  }
 };
 
 export default AuthApi;

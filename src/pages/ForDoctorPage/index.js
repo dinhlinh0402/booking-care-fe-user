@@ -239,8 +239,8 @@ const ForDoctorsPage = () => {
           )}
           <Box sx={{ width: "50%", pl: 2 }}>
             <Typography sx={{ fontSize: 25, fontWeight: "bold", pb: 1 }}>
-              {doctor?.doctorInfor?.position ? positionDoctor[doctor?.doctorInfor?.position] : 'Bác sĩ'} {doctor.lastName}{" "}
-              {doctor.middleName} {doctor.firstName}
+              {doctor?.doctorInfor?.position ? positionDoctor[doctor?.doctorInfor?.position] : 'Bác sĩ'} {doctor.firstName}{" "}
+              {doctor.middleName} {doctor.lastName}
             </Typography>
             <Typography sx={{ fontSize: 14, color: "#555" }}>
               {doctor?.doctorInfor?.introduct}

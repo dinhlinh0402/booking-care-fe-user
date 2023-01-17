@@ -1,9 +1,13 @@
 import React from "react";
 import './index.scss';
 
-const Procedure = () => {
+const Procedure = ({
+  dataProcedure
+}) => {
   return (
-    <div className>Giới thiệu</div>
+    <div className='container_procedure'>
+      <div dangerouslySetInnerHTML={{ __html: dataProcedure }} />
+    </div>
   )
 }
 

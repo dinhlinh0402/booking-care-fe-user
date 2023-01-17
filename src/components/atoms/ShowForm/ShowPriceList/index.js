@@ -27,15 +27,15 @@ function ShowPriceList({ detail }) {
           {showPL ? null : (
             <div className="btn-show">
               <p className="price-txt">
-                {detail?.doctorInfor?.price.toLocaleString("en-US")}đ
+                {detail?.doctorInfor?.price.toLocaleString("it-IT")} đ
               </p>
-              <button
+              {/* <button
                 className="btn-more"
                 type="button"
                 onClick={handleClickPL}
               >
                 Xem chi tiết
-              </button>
+              </button> */}
             </div>
           )}
         </div>

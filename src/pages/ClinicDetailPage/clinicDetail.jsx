@@ -8,7 +8,6 @@ import Select from "@mui/material/Select";
 import Avatar from "@mui/material/Avatar";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import { Link } from "@mui/material";
 
 import { useParams, useNavigate } from "react-router-dom";
 
@@ -23,7 +22,7 @@ import ShowInsurance from "../../components/atoms/ShowForm/ShowInsurance";
 import ClinicApi from "../../apis/ClinicApi";
 
 import DoctorApi from "../../apis/DoctorApi";
-import { Space, Spin, Tabs } from "antd";
+import { Space, Spin, Tabs, Typography } from "antd";
 import './clinicDetail.scss';
 import LocationIcon from '../../components/Icon/LocationIcon';
 import Introduct from "./components/Introduct";
@@ -31,13 +30,12 @@ import Strengths from "./components/Strengths";
 import Equipment from "./components/Equipment";
 import Location from "./components/Location";
 import Procedure from "./components/Procedure";
+import Schedule from "./components/Schedule";
 
 export default function ClinicDetail() {
   let { id } = useParams();
   let navigate = useNavigate();
   const [location, setLocation] = useState("");
-  // const [date, setDate] = useState('');
-
   const [detailClinic, setDetaiClinic] = useState();
   const [doctors, setDoctors] = useState();
   const [loading, setLoading] = useState(false);
@@ -69,7 +67,10 @@ export default function ClinicDetail() {
         clinicId: id,
       });
       if (response?.data) {
+        const listId = response?.data?.data.map(item => item.id)
         setDoctors(response.data.data || []);
+        // setListDoctorId(listId || []);
+        // setListDoctorId([listId[4]] || []);
       }
       setLoading(false);
     } catch (error) {
@@ -101,7 +102,7 @@ export default function ClinicDetail() {
             <Space size={30}>
               <Avatar
                 shape="square"
-                src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
+                src={`${baseURL}${detailClinic?.image || ''}`}
                 style={{
                   width: '100px',
                   height: '100px',
@@ -131,121 +132,51 @@ export default function ClinicDetail() {
           </div>
           <div className="content">
 
-            <Tabs defaultActiveKey="1" centered>
+            <Tabs defaultActiveKey="6" centered>
               <Tabs.TabPane tab="Đặt lịch khám" key="6">
-                <Container>
-                  {doctors?.map((doctor) => (
-                    <div className="wrapper" key={doctor.id}>
-                      <div className="wp-left">
-                        <div className="img">
-                          {!doctor.avatar ? (
-                            <Avatar
-                              alt={doctor.id}
-                              src={image.DepthsDefault}
-                              sx={{ width: 100, height: 100, mb: 1 }}
-                            />
-                          ) : (
-                            <Avatar
-                              alt={doctor.id}
-                              src={`${baseURL}${doctor.avatar}`}
-                              sx={{ width: 100, height: 100, mb: 1 }}
-                            />
-                          )}
-                          <Link
-                            className="link"
-                            onClick={() => handleToDetail(doctor)}
-                          >
-                            Xem thêm
-                          </Link>
-                        </div>
-                        <div className="information">
-                          <p className="name">
-                            {doctor?.doctorInfor?.position} {doctor.lastName}{" "}
-                            {doctor.middleName} {doctor.firstName}
-                          </p>
-                          <p className="detail">{doctor?.doctorInfor?.introduct}</p>
-                          <p className="detail">{doctor?.doctorInfor?.note}</p>
-                          <div className="address">
-                            <div className="icons">
-                              <LocationOnIcon fontSize="small" />
-                            </div>
-                            Hà nội
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="wp-right">
-                        {/* <FormControl variant="standard" sx={{ width: 120 }}>
-                <InputLabel id="demo-simple-select-standard-label">Date</InputLabel>
-                <Select
-                labelId="demo-simple-select-standard-label"
-                id="demo-simple-select-standard"
-                value={date}
-                onChange={handleChangeDate}
-                label="Date"
-                className='select'
-                sx={{ color: '#337ab7' }}
-                >
-                <MenuItem value={10}>Thứ 6: 27/05</MenuItem>
-                <MenuItem value={20}>Thứ 7: 28/05</MenuItem>
-                <MenuItem value={30}>Thứ 2: 30/05</MenuItem>
-                </Select>
-            </FormControl> */}
-
-                        <div className="calender">
-                          <div className="title">
-                            <CalendarMonthIcon fontSize="small" />
-                            <p className="text">LỊCH KHÁM</p>
-                          </div>
-
-                          <div className="booking">
-                            <Link
-                              className="btn-booking"
-                              onClick={() => handleToDetail(doctor)}
-                            >
-                              Đăng ký khám
-                            </Link>
-                          </div>
-
-                          <p className="txt">Chọn và đặt (Phí đặt lịch 0đ)</p>
-                        </div>
-
-                        <div className="booking-address">
-                          <p className="title">ĐỊA CHỈ KHÁM</p>
-                          <p className="content">{doctor?.clinic?.name}</p>
-                          <p className="content">{doctor?.clinic?.address}</p>
-                        </div>
-
-                        <ShowPriceList detail={doctor} />
-
-                        <ShowInsurance />
-                      </div>
-                    </div>
-                  ))}
-                </Container>
+                {doctors && doctors.length > 0 &&
+                  doctors.map(item => (
+                    <Schedule key={item.id} doctor={item} />
+                  ))
+                }
               </Tabs.TabPane>
-              <Tabs.TabPane tab="Giới thiệu" key="1">
-                <Introduct />
-              </Tabs.TabPane>
-              <Tabs.TabPane tab="Thế mạnh chuyên môn" key="2">
-                <Strengths />
-              </Tabs.TabPane>
-              <Tabs.TabPane tab="Trang thiết bị" key="3">
-                <Equipment />
-              </Tabs.TabPane>
-              <Tabs.TabPane tab="Vị trí" key="4">
-                <Location />
-              </Tabs.TabPane>
-              <Tabs.TabPane tab="Quy trình đi khám" key="5">
-                <Procedure />
-              </Tabs.TabPane>
+              {detailClinic && detailClinic?.clinicInfor?.introduct && (
+                <Tabs.TabPane tab="Giới thiệu" key="1">
+                  <Introduct dataIntroduct={detailClinic?.clinicInfor?.introduct || null} />
+                </Tabs.TabPane>
+              )}
+              {detailClinic && detailClinic?.clinicInfor?.strengths && (
+                <Tabs.TabPane tab="Thế mạnh chuyên môn" key="2">
+                  <Strengths dataStrengths={detailClinic?.clinicInfor?.strengths} />
+                </Tabs.TabPane>
+              )}
+
+              {detailClinic && detailClinic?.clinicInfor?.equipment &&
+                (
+                  <Tabs.TabPane tab="Trang thiết bị" key="3">
+                    <Equipment dataEquipment={detailClinic?.clinicInfor?.equipment} />
+                  </Tabs.TabPane>
+                )}
+
+              {detailClinic && detailClinic?.clinicInfor?.location &&
+                (
+                  <Tabs.TabPane tab="Vị trí" key="4">
+                    <Location dataLocation={detailClinic?.clinicInfor?.location} />
+                  </Tabs.TabPane>
+                )}
+
+              {detailClinic && detailClinic?.clinicInfor?.procedure &&
+                (
+                  <Tabs.TabPane tab="Quy trình đi khám" key="5">
+                    <Procedure dataProcedure={detailClinic?.clinicInfor?.procedure} />
+                  </Tabs.TabPane>
+                )}
 
             </Tabs>
 
           </div>
         </div>
       )}
-
 
       {/* </BookingWrapper> */}
     </>

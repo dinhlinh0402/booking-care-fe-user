@@ -30,7 +30,6 @@ const DepthsListPage = () => {
         page: 1,
         take: 100,
       });
-      console.log("response", response);
       setSpecialties(response.data.data);
     } catch (error) {
       console.error(error.response);

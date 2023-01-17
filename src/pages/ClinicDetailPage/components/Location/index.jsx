@@ -1,9 +1,13 @@
 import React from "react";
 import './index.scss';
 
-const Location = () => {
+const Location = ({
+  dataLocation
+}) => {
   return (
-    <div className>Giới thiệu</div>
+    <div className='container_location'>
+      <div dangerouslySetInnerHTML={{ __html: dataLocation }} />
+    </div>
   )
 }
 

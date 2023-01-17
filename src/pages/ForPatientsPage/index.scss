@@ -1,0 +1,19 @@
+.spin {
+  margin       : 20px 0;
+  margin-bottom: 20px;
+  padding      : 30px 50px;
+  text-align   : center;
+}
+
+.specialty {
+  margin: 10px 300px;
+
+  .description_specialty {
+    font-size: 14px;
+
+    .name_spacialty {
+      font-weight: 600;
+      font-size: 14px;
+    }
+  }
+}

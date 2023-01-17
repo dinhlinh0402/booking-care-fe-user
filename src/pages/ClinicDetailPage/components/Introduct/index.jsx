@@ -1,8 +1,12 @@
 import React from "react";
 import './index.scss';
-const Introduct = () => {
+const Introduct = ({
+  dataIntroduct
+}) => {
   return (
-    <div className>Giới thiệu</div>
+    <div className='container_introduce'>
+      <div dangerouslySetInnerHTML={{ __html: dataIntroduct }} />
+    </div>
   )
 }
 

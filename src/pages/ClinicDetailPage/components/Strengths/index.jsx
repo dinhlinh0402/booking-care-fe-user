@@ -1,9 +1,13 @@
 import React from "react";
 import './index.scss';
 
-const Strengths = () => {
+const Strengths = ({
+  dataStrengths
+}) => {
   return (
-    <div className>Giới thiệu</div>
+    <div className='container_strengths'>
+      <div dangerouslySetInnerHTML={{ __html: dataStrengths }} />
+    </div>
   )
 }
 

@@ -1,0 +1,53 @@
+.card_schedule_doctor {
+  width: 100%;
+  min-height: 200px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: row;
+  background-color: #fff;
+  box-shadow: 0 1px 6px rgb(32 33 36 / 28%);
+  border-radius: 8px;
+  border-bottom: none;
+  padding: 20px;
+
+  .information_doctor {
+    width: 55%;
+    // background: red;
+  }
+
+  .information {
+    .name_doctor {
+      color: #45c3d2;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .introduct {
+      p, h1, h2 {
+        margin: 0;
+      }
+      white-space: pre-wrap;
+    }
+  }
+
+  .schedule_doctor {
+    width: 45%;
+    // background: green;
+
+    .date_picker {
+      width: 200px;
+    }
+
+    .list_schedule {
+      margin-top: 10px;
+      color: #333;
+      .button_schedule {
+        background-color: #fff04b;
+        width: 128px;
+        &:hover {
+          background-color: #fff04b;
+          color: #333;
+        }
+      }
+    }
+  }
+}

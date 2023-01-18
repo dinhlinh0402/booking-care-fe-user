@@ -41,7 +41,6 @@ const PersonalInformation = () => {
 
       const dataRes = await UserApi.getUserById(userLocal?.id);
       // const dataRes = await AuthApi.getAuth(userLocal?.id); // Cấp lại quyếnf cho user
-      console.log('dataRes: ', dataRes);
 
       if (dataRes?.data) {
         const { data } = dataRes;
@@ -423,7 +422,7 @@ const PersonalInformation = () => {
                   {editInformation && (
                     <div style={{ textAlign: 'center', marginTop: '30px', width: '100%' }}>
                       <Col span={24} style={{ textAlign: 'center' }}>
-                        <Button className='btn_cancel' danger size='middle'>
+                        <Button className='btn_cancel' danger size='middle' onClick={() => setEditInformation(false)}>
                           Hủy
                         </Button>
 

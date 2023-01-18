@@ -7,10 +7,12 @@ import BookingApi from "../../../../apis/BookingApi";
 import { useEffect } from "react";
 import DetailBooking from "./components/DetailBooking";
 import { toast } from "react-toastify";
-
+import baseURL from "../../../../utils";
+import { set } from "react-hook-form";
 
 const Bookings = () => {
   const [loading, setLoading] = useState(false);
+  const [loadingUpdateStatus, setLoadingUpdateStatus] = useState(false);
   const [dataBookings, setDataBookings] = useState(null);
   const [dataResponse, setDataResponse] = useState(null);
   const [pagination, setPagination] = useState({
@@ -19,13 +21,14 @@ const Bookings = () => {
   });
 
   const [detailBooking, setDetailBooking] = useState(null);
-  const [showModalDetail, setShowModalDetail] = useState(null);
+  const [showModalDetail, setShowModalDetail] = useState(false);
   const [showModalChangeStatus, setShowModalChangeStatus] = useState(false);
   const [dataChange, setDataChange] = useState(null);
 
   useEffect(() => {
-    getDataBookings();
-  }, [])
+    if (!loadingUpdateStatus)
+      getDataBookings();
+  }, [loadingUpdateStatus])
 
   const getDataBookings = async () => {
     try {
@@ -39,7 +42,6 @@ const Bookings = () => {
         ...pagination,
         patientId: userLocal.id || undefined,
       })
-      console.log('dataRes: ', dataRes);
       if (dataRes?.data?.data) {
         const { data } = dataRes?.data;
         const newData = data.map(item => {
@@ -59,8 +61,8 @@ const Bookings = () => {
             reason: item?.reason || '',
             status: item?.status || '',
             patientId: item?.patient?.id,
-            prescription: 'chưa trả ra',
-            noteDocdot: 'chua tra',
+            prescription: item?.history?.prescription ? `${baseURL}${item?.history?.prescription}` : '',
+            doctorNote: item?.history?.doctorNote || '',
           }
         })
         setDataBookings(newData || [])
@@ -99,6 +101,15 @@ const Bookings = () => {
       key: 'prescription',
       width: 70,
       ellipsis: true,
+      render: (value) => (
+        <>
+          {value ? (
+            <a download href={value}>
+              <div>Xem đơn thuốc</div>
+            </a>
+          ) : ''}
+        </>
+      )
     },
     {
       title: 'Tên bác sĩ',
@@ -187,10 +198,10 @@ const Bookings = () => {
                     }}
                     type="primary"
                     danger
-                  // onClick={() => {
-                  //   setShowModalChangeStatus(true);
-                  //   setDataChange({status: 'CANCEL', bookingId: record.idBooking})
-                  // }}
+                    onClick={() => {
+                      setShowModalChangeStatus(true);
+                      setDataChange({ status: 'CANCEL', bookingId: record.id })
+                    }}
                   >Hủy</Button>
                 </>
               )}
@@ -220,6 +231,7 @@ const Bookings = () => {
   ];
 
   const handleChangeStatusConfirm = async (status, bookingId) => {
+    setLoadingUpdateStatus(true);
     if (status !== 'CONFIRMED') {
       toast.error('Thay đổi trạng thái không thành công!');
       return;
@@ -232,13 +244,16 @@ const Bookings = () => {
         toast.success('Thay đổi trạng thái thành công');
       }
       // handleReset();
+      setLoadingUpdateStatus(false);
     } catch (error) {
       console.log('error: ', error);
       toast.error('Thay đổi trạng thái không thành công!');
+      setLoadingUpdateStatus(false);
     }
   }
 
   const handleChangeStatus = async () => {
+    setLoadingUpdateStatus(true);
     const { status, bookingId } = dataChange;
     const listStatus = ['CANCEL', 'CONFIRMED'];
     if (!dataChange || !listStatus.includes(status)) {
@@ -254,10 +269,12 @@ const Bookings = () => {
       }
       setDataChange(null);
       setShowModalChangeStatus(false);
+      setLoadingUpdateStatus(false);
     } catch (error) {
       console.log('error: ', error);
       toast.error('Thay đổi trạng thái không thành công!');
       setDataChange(null);
+      setLoadingUpdateStatus(false);
     }
   }
 
@@ -275,7 +292,7 @@ const Bookings = () => {
 
           <div>
             <Table
-              loading={loading}
+              loading={loading || loadingUpdateStatus}
               rowKey={'id'}
               dataSource={dataBookings}
               columns={columns}
@@ -306,7 +323,7 @@ const Bookings = () => {
       />
 
       <Modal
-        open={showModalChangeStatus}
+        visible={showModalChangeStatus}
         onOk={handleChangeStatus}
         onCancel={() => {
           setDataChange(null);

@@ -16,13 +16,14 @@ const DetailBooking = ({
   const [loadingData, setLoadingData] = useState(false);
   const [dataHistoryPatient, setDataHistoryPatient] = useState([]);
   const [form] = Form.useForm();
+
   useEffect(() => {
     if (detailBooking) {
       form.setFieldsValue({
-        name: detailBooking?.namePatient || '',
-        email: detailBooking?.email || '',
+        // name: detailBooking?.namePatient || '',
+        // email: detailBooking?.email || '',
         reason: detailBooking?.reason || '',
-        note: detailBooking?.doctorNote || null,
+        doctorNote: detailBooking?.doctorNote || null,
       })
     }
   }, [detailBooking]);
@@ -35,7 +36,7 @@ const DetailBooking = ({
           <div>Chi tiết</div>
         </>
       }
-      open={showModal}
+      visible={showModal}
       onCancel={() => {
         if (!loading) {
           handleCancelModal();
@@ -47,15 +48,15 @@ const DetailBooking = ({
       footer={false}
     >
       <Spin spinning={loading}>
-          <Form
-            name='patient'
-            // onFinish={(values) => handleSubmit(values)}
-            autoComplete='off'
-            layout='vertical'
-            form={form}
-          >
-            <Row gutter={24}>
-              <Col span={12}>
+        <Form
+          name='patient'
+          // onFinish={(values) => handleSubmit(values)}
+          autoComplete='off'
+          layout='vertical'
+          form={form}
+        >
+          <Row gutter={24}>
+            {/* <Col span={12}>
                 <Form.Item
                   name={'name'}
                   label={<span className='txt_label'>Tên bệnh nhân</span>}
@@ -78,56 +79,50 @@ const DetailBooking = ({
                     className='txt_input'
                     placeholder={'Email'} />
                 </Form.Item>
-              </Col>
+              </Col> */}
 
-              <Col span={24}>
-                <Form.Item
-                  name={'reason'}
-                  label={<span className='txt_label'>Lý do khám</span>}
-                >
-                  <TextArea
-                    disabled
-                    rows={4}
-                    placeholder='Lý do'
-                  />
-                </Form.Item>
-              </Col>
-
-              <Col span={24}>
-                <Form.Item
-                  name={'note'}
-                  label={<span className='txt_label'>Ghi chú của bác sĩ</span>}
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Ghi chú không được trống!',
-                    }
-                  ]}
-                >
-                  <TextArea
-                    disabled
-                    rows={4}
-                    placeholder={detailBooking?.doctorNote ? 'Ghi chú' : 'Không có thông tin'}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Col span={24} style={{ textAlign: 'center' }}>
-              <Button 
-                className='btn_cancel' 
-                danger size='middle' 
-                onClick={() => {
-                  handleCancelModal();
-                  form.resetFields();
-                }}
+            <Col span={24}>
+              <Form.Item
+                name={'reason'}
+                label={<span className='txt_label'>Lý do khám</span>}
               >
-                Đóng
-              </Button>
-              
-
-
+                <TextArea
+                  disabled
+                  rows={4}
+                  placeholder='Lý do'
+                />
+              </Form.Item>
             </Col>
-          </Form>
+
+            <Col span={24}>
+              <Form.Item
+                name={'doctorNote'}
+                label={<span className='txt_label'>Ghi chú của bác sĩ</span>}
+              >
+                <TextArea
+                  disabled
+                  rows={4}
+                  placeholder={detailBooking?.doctorNote ? 'Ghi chú' : 'Không có thông tin'}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Col span={24} style={{ textAlign: 'center' }}>
+            <Button
+              className='btn_cancel'
+              danger size='middle'
+              onClick={() => {
+                handleCancelModal();
+                form.resetFields();
+              }}
+            >
+              Đóng
+            </Button>
+
+
+
+          </Col>
+        </Form>
       </Spin>
     </Modal>
   )

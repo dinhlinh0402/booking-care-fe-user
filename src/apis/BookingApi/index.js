@@ -9,7 +9,7 @@ const BookingApi = {
   updateBooking(data, bookingId) {
     const urlParam = `bookings/${bookingId}`;
 
-    return requestClient().put(urlParam, data);
+    return requestClient.put(urlParam, data);
   },
 
   getBookings(params) {

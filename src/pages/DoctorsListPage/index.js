@@ -150,7 +150,7 @@ const DoctorsListPage = () => {
                   }}
                 >
                   <ListItemText>
-                    {doctor.lastName} {doctor.middleName} {doctor.firstName}
+                    {`${doctor?.firstName ? doctor?.firstName : ''} ${doctor?.middleName ? doctor?.middleName : ''} ${doctor?.lastName ? doctor?.lastName : ''}`.trim()}
                   </ListItemText>
                 </Link>
                 <Link

@@ -149,7 +149,7 @@ const Home = () => {
             CHĂM SÓC SỨC KHỎE TOÀN DIỆN
           </Typography>
         </Stack>
-        <Box maxWidth={456} sx={{ width: "100%" }}>
+        {/* <Box maxWidth={456} sx={{ width: "100%" }}>
           <Autocomplete
             sx={{
               bgcolor: "#F7D800",
@@ -198,7 +198,7 @@ const Home = () => {
               />
             )}
           />
-        </Box>
+        </Box> */}
         <Stack direction="row" spacing={1} sx={{ py: 10 }}>
           <Link href="https://bookingcare.vn/app/android">
             <img

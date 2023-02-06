@@ -99,7 +99,7 @@ const Home = () => {
 
   const getListClinic = async () => {
     try {
-      const response = await ClinicApi.getAllClinics({ page: 1, page_size: 10 });
+      const response = await ClinicApi.getAllClinics({ page: 1, page_size: 10, active: true });
       const listClinic = response?.data?.data.map(item => {
         return {
           id: item.id,
